@@ -1,82 +1,98 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const scoreElement = document.getElementById("score");
-const restartBtn = document.getElementById("restartBtn");
+const canvas = document.getElementById("snake");
+const context = canvas.getContext("2d");
 
-const box = 20;
-let snake, direction, food, score, game;
+const box = 32;
+let score = 0;
 
-function initGame() {
-  snake = [{ x: 9 * box, y: 10 * box }];
-  direction = "RIGHT";
-  food = {
-    x: Math.floor(Math.random() * 20) * box,
-    y: Math.floor(Math.random() * 20) * box
-  };
-  score = 0;
-  scoreElement.textContent = score;
-  if (game) clearInterval(game);
-  game = setInterval(draw, 100);
+// 初始蛇（三格長度）
+let snake = [
+  { x: 9 * box, y: 10 * box },
+  { x: 8 * box, y: 10 * box },
+  { x: 7 * box, y: 10 * box }
+];
+
+// 食物位置
+let food = {
+  x: Math.floor(Math.random() * 17 + 1) * box,
+  y: Math.floor(Math.random() * 15 + 3) * box
+};
+
+// 控制方向
+let d;
+document.addEventListener("keydown", direction);
+
+function direction(event) {
+  if (event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+  else if (event.keyCode == 38 && d != "DOWN") d = "UP";
+  else if (event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+  else if (event.keyCode == 40 && d != "UP") d = "DOWN";
 }
 
-document.addEventListener("keydown", event => {
-  if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-  if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-  if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
-  if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-});
-
-restartBtn.addEventListener("click", initGame);
-
+// 繪製遊戲
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "lightgreen";
+  context.fillRect(0, 0, 19 * box, 19 * box);
 
-  // 畫蛇
-  snake.forEach(segment => {
-    ctx.fillStyle = "lime";
-    ctx.fillRect(segment.x, segment.y, box, box);
-  });
+  for (let i = 0; i < snake.length; i++) {
+    context.fillStyle = i == 0 ? "darkgreen" : "green";
+    context.fillRect(snake[i].x, snake[i].y, box, box);
+    context.strokeStyle = "white";
+    context.strokeRect(snake[i].x, snake[i].y, box, box);
+  }
 
-  // 畫食物
-  ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
+  context.fillStyle = "red";
+  context.fillRect(food.x, food.y, box, box);
 
-  // 移動蛇
-  let headX = snake[0].x;
-  let headY = snake[0].y;
+  let snakeX = snake[0].x;
+  let snakeY = snake[0].y;
 
-  if (direction === "LEFT") headX -= box;
-  if (direction === "UP") headY -= box;
-  if (direction === "RIGHT") headX += box;
-  if (direction === "DOWN") headY += box;
+  if (d == "LEFT") snakeX -= box;
+  if (d == "UP") snakeY -= box;
+  if (d == "RIGHT") snakeX += box;
+  if (d == "DOWN") snakeY += box;
 
-  // 吃到食物
-  if (headX === food.x && headY === food.y) {
+  // 吃到食物 → 蛇長一格
+  if (snakeX == food.x && snakeY == food.y) {
     score++;
-    scoreElement.textContent = score;
     food = {
-      x: Math.floor(Math.random() * 20) * box,
-      y: Math.floor(Math.random() * 20) * box
+      x: Math.floor(Math.random() * 17 + 1) * box,
+      y: Math.floor(Math.random() * 15 + 3) * box
     };
   } else {
+    // 沒吃到 → 移除尾巴，保持長度
     snake.pop();
   }
 
-  let newHead = { x: headX, y: headY };
+  let newHead = { x: snakeX, y: snakeY };
 
-  // 撞牆或撞自己 → 遊戲結束
+  // 撞牆或撞到自己 → 遊戲結束
   if (
-    headX < 0 || headY < 0 ||
-    headX >= canvas.width || headY >= canvas.height ||
-    snake.some(segment => segment.x === newHead.x && segment.y === newHead.y)
+    snakeX < 0 ||
+    snakeY < 0 ||
+    snakeX >= 19 * box ||
+    snakeY >= 19 * box ||
+    collision(newHead, snake)
   ) {
     clearInterval(game);
-    alert("遊戲結束！分數：" + score);
-    return;
   }
 
   snake.unshift(newHead);
+
+  context.fillStyle = "black";
+  context.font = "20px Arial";
+  context.fillText("Score: " + score, box, box);
 }
+
+function collision(head, array) {
+  for (let i = 0; i < array.length; i++) {
+    if (head.x == array[i].x && head.y == array[i].y) {
+      return true;
+    }
+  }
+  return false;
+}
+
+let game = setInterval(draw, 100);
 
 // 啟動遊戲
 initGame();
