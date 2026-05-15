@@ -2,16 +2,56 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>貪吃蛇 PWA</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      text-align: center;
+      background: #222;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      border: 2px solid white;
+      margin-top: 20px;
+      background: #f0f0f0;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    .controls button {
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      margin: 5px;
+      border-radius: 10px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+    }
+    .controls button:active {
+      background: #388E3C;
+    }
+  </style>
 </head>
 <body>
-  <h1>🐍 貪吃蛇 PWA</h1>
+  <h1>貪吃蛇 PWA</h1>
   <p>分數：<span id="score">0</span></p>
-  <canvas id="gameCanvas" width="400" height="400"></canvas>
-  <button id="restartBtn">重新開始</button>
+  <canvas id="snake"></canvas>
+
+  <!-- 手機控制按鈕 -->
+  <div class="controls">
+    <div>
+      <button id="btnUp">↑</button>
+    </div>
+    <div>
+      <button id="btnLeft">←</button>
+      <button id="btnRight">→</button>
+    </div>
+    <div>
+      <button id="btnDown">↓</button>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
