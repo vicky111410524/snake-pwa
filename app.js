@@ -4,7 +4,7 @@ const context = canvas.getContext("2d");
 const box = 32;
 let score = 0;
 
-// 把遊戲區域放大 (20x20 格 → 25x25 格)
+// 遊戲區域放大 (25x25 格)
 const rows = 25;
 const cols = 25;
 canvas.width = cols * box;
@@ -16,6 +16,9 @@ let snake = [
   { x: 11 * box, y: 12 * box },
   { x: 10 * box, y: 12 * box }
 ];
+
+// 初始方向 → 往右
+let d = "RIGHT";
 
 // 多顆食物
 let foods = [];
@@ -30,10 +33,8 @@ function generateFoods(count) {
 }
 generateFoods(5); // 一開始生成 5 顆豆子
 
-// 控制方向
-let d;
+// 鍵盤控制
 document.addEventListener("keydown", direction);
-
 function direction(event) {
   if (event.keyCode == 37 && d != "RIGHT") d = "LEFT";
   else if (event.keyCode == 38 && d != "DOWN") d = "UP";
@@ -41,9 +42,33 @@ function direction(event) {
   else if (event.keyCode == 40 && d != "UP") d = "DOWN";
 }
 
+// 手機按鈕控制
+document.getElementById("btnLeft").addEventListener("click", () => { if (d != "RIGHT") d = "LEFT"; });
+document.getElementById("btnUp").addEventListener("click", () => { if (d != "DOWN") d = "UP"; });
+document.getElementById("btnRight").addEventListener("click", () => { if (d != "LEFT") d = "RIGHT"; });
+document.getElementById("btnDown").addEventListener("click", () => { if (d != "UP") d = "DOWN"; });
+
+// 手指滑動控制
+let touchStartX, touchStartY;
+canvas.addEventListener("touchstart", e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+canvas.addEventListener("touchend", e => {
+  let dx = e.changedTouches[0].clientX - touchStartX;
+  let dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0 && d != "LEFT") d = "RIGHT";
+    else if (dx < 0 && d != "RIGHT") d = "LEFT";
+  } else {
+    if (dy > 0 && d != "UP") d = "DOWN";
+    else if (dy < 0 && d != "DOWN") d = "UP";
+  }
+});
+
 // 繪製遊戲
 function draw() {
-  // 美化背景：淺色格線
+  // 美化背景：淺灰格線
   context.fillStyle = "#f0f0f0";
   context.fillRect(0, 0, cols * box, rows * box);
 
@@ -117,9 +142,8 @@ function draw() {
 
   snake.unshift(newHead);
 
-  context.fillStyle = "black";
-  context.font = "20px Arial";
-  context.fillText("分數：" + score, box, box);
+  // 更新分數顯示
+  document.getElementById("score").innerText = score;
 }
 
 function collision(head, array) {
@@ -131,7 +155,6 @@ function collision(head, array) {
   return false;
 }
 
+// 遊戲開始
 let game = setInterval(draw, 100);
 
-// 啟動遊戲
-initGame();
