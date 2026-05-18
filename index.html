@@ -18,7 +18,7 @@
     .controls {
       margin-top: 20px;
     }
-    .controls button {
+    .controls button, #restart {
       width: 60px;
       height: 60px;
       font-size: 24px;
@@ -28,8 +28,18 @@
       background: #4CAF50;
       color: white;
     }
-    .controls button:active {
+    .controls button:active, #restart:active {
       background: #388E3C;
+    }
+    #restart {
+      width: 150px;
+      height: 50px;
+      font-size: 20px;
+      margin-top: 15px;
+      background: #f44336;
+    }
+    #restart:active {
+      background: #d32f2f;
     }
   </style>
 </head>
@@ -51,6 +61,9 @@
       <button id="btnDown">↓</button>
     </div>
   </div>
+
+  <!-- 重新開始按鈕 -->
+  <button id="restart">重新開始</button>
 
   <script src="app.js"></script>
 </body>
