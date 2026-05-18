@@ -3,25 +3,31 @@ const context = canvas.getContext("2d");
 
 const box = 32;
 let score = 0;
-
-// 遊戲區域放大 (25x25 格)
 const rows = 25;
 const cols = 25;
 canvas.width = cols * box;
 canvas.height = rows * box;
 
-// 初始蛇（三格長度）
-let snake = [
-  { x: 12 * box, y: 12 * box },
-  { x: 11 * box, y: 12 * box },
-  { x: 10 * box, y: 12 * box }
-];
+let snake;
+let d;
+let foods;
+let game;
 
-// 初始方向 → 往右
-let d = "RIGHT";
+// 初始化遊戲
+function initGame() {
+  snake = [
+    { x: 12 * box, y: 12 * box },
+    { x: 11 * box, y: 12 * box },
+    { x: 10 * box, y: 12 * box }
+  ];
+  d = "RIGHT";
+  score = 0;
+  generateFoods(5);
+  clearInterval(game);
+  game = setInterval(draw, 100);
+  document.getElementById("score").innerText = score;
+}
 
-// 多顆食物
-let foods = [];
 function generateFoods(count) {
   foods = [];
   for (let i = 0; i < count; i++) {
@@ -31,7 +37,6 @@ function generateFoods(count) {
     });
   }
 }
-generateFoods(5); // 一開始生成 5 顆豆子
 
 // 鍵盤控制
 document.addEventListener("keydown", direction);
@@ -68,7 +73,6 @@ canvas.addEventListener("touchend", e => {
 
 // 繪製遊戲
 function draw() {
-  // 美化背景：淺灰格線
   context.fillStyle = "#f0f0f0";
   context.fillRect(0, 0, cols * box, rows * box);
 
@@ -86,7 +90,6 @@ function draw() {
     context.stroke();
   }
 
-  // 畫蛇
   for (let i = 0; i < snake.length; i++) {
     context.fillStyle = i == 0 ? "darkgreen" : "green";
     context.fillRect(snake[i].x, snake[i].y, box, box);
@@ -94,7 +97,6 @@ function draw() {
     context.strokeRect(snake[i].x, snake[i].y, box, box);
   }
 
-  // 畫食物
   for (let f of foods) {
     context.fillStyle = "red";
     context.fillRect(f.x, f.y, box, box);
@@ -108,7 +110,6 @@ function draw() {
   if (d == "RIGHT") snakeX += box;
   if (d == "DOWN") snakeY += box;
 
-  // 檢查是否吃到食物
   let ateFood = false;
   for (let i = 0; i < foods.length; i++) {
     if (snakeX == foods[i].x && snakeY == foods[i].y) {
@@ -123,13 +124,10 @@ function draw() {
     }
   }
 
-  if (!ateFood) {
-    snake.pop();
-  }
+  if (!ateFood) snake.pop();
 
   let newHead = { x: snakeX, y: snakeY };
 
-  // 撞牆或撞到自己 → 遊戲結束
   if (
     snakeX < 0 ||
     snakeY < 0 ||
@@ -138,23 +136,26 @@ function draw() {
     collision(newHead, snake)
   ) {
     clearInterval(game);
+    context.fillStyle = "black";
+    context.font = "30px Arial";
+    context.fillText("遊戲結束！請按重新開始", box * 3, box * 12);
+    return;
   }
 
   snake.unshift(newHead);
-
-  // 更新分數顯示
   document.getElementById("score").innerText = score;
 }
 
 function collision(head, array) {
   for (let i = 0; i < array.length; i++) {
-    if (head.x == array[i].x && head.y == array[i].y) {
-      return true;
-    }
+    if (head.x == array[i].x && head.y == array[i].y) return true;
   }
   return false;
 }
 
-// 遊戲開始
-let game = setInterval(draw, 100);
+// 綁定重新開始按鈕
+document.getElementById("restart").addEventListener("click", initGame);
+
+// 啟動遊戲
+initGame();
 
